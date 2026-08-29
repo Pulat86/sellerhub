@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  migrations:
+    name: Миграции и тест изоляции тенантов
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # Поднимаем чистый Postgres и прогоняем все миграции с нуля.
+      # Падает здесь — значит миграция не применится и на проде.
+      - name: Поднять базу и применить миграции
+        run: supabase db start
+
+      - name: Тест изоляции тенантов
+        run: |
+          set -euo pipefail
+          OUT=$(supabase db execute --file supabase/tests/tenant_isolation.sql 2>&1)
+          echo "$OUT"
+          if echo "$OUT" | grep -q 'ПРОВАЛ'; then
+            echo '::error::Тест изоляции тенантов провален — данные утекают между компаниями'
+            exit 1
+          fi
