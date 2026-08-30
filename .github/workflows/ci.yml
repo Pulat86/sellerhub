@@ -9,6 +9,7 @@ jobs:
   migrations:
     name: Миграции и тест изоляции тенантов
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -16,17 +17,32 @@ jobs:
         with:
           version: latest
 
-      # Поднимаем чистый Postgres и прогоняем все миграции с нуля.
-      # Падает здесь — значит миграция не применится и на проде.
-      - name: Поднять базу и применить миграции
-        run: supabase db start
+      # Поднимаем локальный стек. Миграции из supabase/migrations применяются автоматически.
+      - name: Поднять локальный Supabase
+        run: supabase start
 
+      # Явный прогон с нуля: база уничтожается и миграции накатываются по порядку.
+      # Падает здесь — значит миграция не применится и на проде.
+      - name: Применить миграции с нуля
+        run: supabase db reset
+
+      # Тест изоляции гоняется через psql: у Supabase CLI нет команды для
+      # выполнения произвольного SQL-файла. psql предустановлен на ubuntu-latest.
       - name: Тест изоляции тенантов
+        env:
+          PGURL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
         run: |
           set -euo pipefail
-          OUT=$(supabase db execute --file supabase/tests/tenant_isolation.sql 2>&1)
+          OUT=$(psql "$PGURL" -v ON_ERROR_STOP=1 -f supabase/tests/tenant_isolation.sql)
           echo "$OUT"
           if echo "$OUT" | grep -q 'ПРОВАЛ'; then
             echo '::error::Тест изоляции тенантов провален — данные утекают между компаниями'
             exit 1
           fi
+          if ! echo "$OUT" | grep -q 'OK'; then
+            echo '::error::Тест не вернул ни одной строки — проверь сам тест, молчаливый пропуск хуже падения'
+            exit 1
+          fi
+
+      - name: Линтер базы
+        run: supabase db lint --level error --fail-on error
