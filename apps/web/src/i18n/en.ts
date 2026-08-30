@@ -9,6 +9,8 @@ export const en: Dictionary = {
     warehouse: 'Warehouse',
     analytics: 'Analytics',
     settings: 'Settings',
+    openMenu: 'Open menu',
+    closeMenu: 'Close menu',
   },
   auth: {
     signInTitle: 'Sign in to SellerHub',

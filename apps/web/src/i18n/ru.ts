@@ -7,6 +7,8 @@ export const ru = {
     warehouse: 'Склад',
     analytics: 'Аналитика',
     settings: 'Настройки',
+    openMenu: 'Открыть меню',
+    closeMenu: 'Закрыть меню',
   },
   auth: {
     signInTitle: 'Вход в SellerHub',

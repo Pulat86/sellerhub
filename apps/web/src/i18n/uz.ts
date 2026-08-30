@@ -9,6 +9,8 @@ export const uz: Dictionary = {
     warehouse: 'Ombor',
     analytics: 'Tahlil',
     settings: 'Sozlamalar',
+    openMenu: 'Menyuni ochish',
+    closeMenu: 'Menyuni yopish',
   },
   auth: {
     signInTitle: 'SellerHub tizimiga kirish',
