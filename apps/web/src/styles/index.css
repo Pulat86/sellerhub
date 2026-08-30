@@ -55,6 +55,13 @@
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
 
+  /* Типографическая шкала. Без неё в компонентах расползаются text-[13px],
+     и правило «никаких литеральных значений» нарушается двадцатью местами. */
+  --text-mini:  10px;
+  --text-micro: 11px;
+  --text-small: 13px;
+  --text-lead:  15px;
+
   --font-display: var(--font-display);
   --font-sans:    var(--font-body);
   --font-mono:    var(--font-mono);

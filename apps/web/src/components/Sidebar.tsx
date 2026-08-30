@@ -18,7 +18,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <nav className="flex h-full w-60 flex-none flex-col gap-0.5 border-r border-sidebar-line bg-sidebar px-3 py-4">
-      <div className="px-3 pb-4 font-display text-[15px] font-extrabold tracking-tight text-sidebar-brand">
+      <div className="px-3 pb-4 font-display text-lead font-extrabold tracking-tight text-sidebar-brand">
         {t('app.name')}
       </div>
 
@@ -29,7 +29,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           end={item.end}
           onClick={onNavigate}
           className={({ isActive }) =>
-            'relative flex items-center gap-3 rounded-md px-3 py-2 text-[13px] transition-colors ' +
+            'relative flex items-center gap-3 rounded-md px-3 py-2 text-small transition-colors ' +
             (isActive
               ? 'bg-sidebar-active font-semibold text-sidebar-on'
               : 'font-medium text-sidebar-text hover:bg-sidebar-hover hover:text-ink')
@@ -37,6 +37,8 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         >
           {({ isActive }) => (
             <>
+              {/* Геометрия самого маркера и заглушки иконки — локальная для этого
+                  компонента и нигде больше не повторяется, поэтому без токенов. */}
               {isActive && (
                 <span className="absolute top-2 bottom-2 left-0 w-[3px] rounded-r-sm bg-sidebar-mark" />
               )}
@@ -50,13 +52,13 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       <div className="mt-auto flex flex-col gap-3 border-t border-sidebar-line pt-4">
         {memberships.length > 1 && (
           <label className="flex flex-col gap-1 px-3">
-            <span className="font-display text-[10px] font-bold tracking-wider text-ink-faint uppercase">
+            <span className="font-display text-mini font-bold tracking-wider text-ink-faint uppercase">
               {t('tenant.switch')}
             </span>
             <select
               value={currentTenant?.tenant.id ?? ''}
               onChange={(e) => setCurrentTenantId(e.target.value)}
-              className="rounded-md border border-line bg-surface px-2 py-1.5 text-[13px] text-ink"
+              className="rounded-md border border-line bg-surface px-2 py-1.5 text-small text-ink"
             >
               {memberships.map((m) => (
                 <option key={m.tenant.id} value={m.tenant.id}>
@@ -73,7 +75,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               key={code}
               onClick={() => setLocale(code)}
               className={
-                'rounded-sm px-2 py-1 font-mono text-[11px] uppercase transition-colors ' +
+                'rounded-sm px-2 py-1 font-mono text-micro uppercase transition-colors ' +
                 (i18n.language === code
                   ? 'bg-accent-soft text-accent'
                   : 'text-ink-faint hover:bg-sidebar-hover hover:text-ink')
@@ -86,7 +88,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
         <button
           onClick={() => void signOut()}
-          className="mx-3 rounded-md px-3 py-2 text-left text-[13px] text-ink-muted transition-colors hover:bg-sidebar-hover hover:text-ink"
+          className="mx-3 rounded-md px-3 py-2 text-left text-small text-ink-muted transition-colors hover:bg-sidebar-hover hover:text-ink"
         >
           {t('auth.signOut')}
         </button>

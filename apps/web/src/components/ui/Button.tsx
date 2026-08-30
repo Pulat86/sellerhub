@@ -20,6 +20,6 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 export function Button({ variant = 'primary', size = 'md', className = '', ...rest }: Props) {
-  const sizing = size === 'sm' ? 'text-xs px-3 py-1.5' : 'text-[13px] px-4 py-2'
+  const sizing = size === 'sm' ? 'text-xs px-3 py-1.5' : 'text-small px-4 py-2'
   return <button className={`${base} ${variants[variant]} ${sizing} ${className}`} {...rest} />
 }

@@ -12,7 +12,7 @@ export function Field({ label, hint, error, id, className = '', ...rest }: Props
     <div className="flex flex-col gap-1.5">
       <label
         htmlFor={inputId}
-        className="font-display text-[11px] font-bold uppercase tracking-wider text-ink-faint"
+        className="font-display text-micro font-bold uppercase tracking-wider text-ink-faint"
       >
         {label}
       </label>

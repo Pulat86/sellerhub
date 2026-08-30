@@ -43,7 +43,7 @@ export function CreateTenant() {
         className="flex w-full max-w-md flex-col gap-4 rounded-lg border border-line bg-surface p-6 shadow-sm"
       >
         <h1 className="font-display text-xl font-bold tracking-tight">{t('tenant.createTitle')}</h1>
-        <p className="text-[13px] text-ink-muted">{t('tenant.createLede')}</p>
+        <p className="text-small text-ink-muted">{t('tenant.createLede')}</p>
 
         <Field
           label={t('tenant.name')}

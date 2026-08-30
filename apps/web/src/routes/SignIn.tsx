@@ -59,7 +59,7 @@ export function SignIn() {
           error={error ?? undefined}
         />
 
-        {notice && <p className="text-[13px] text-ok">{notice}</p>}
+        {notice && <p className="text-small text-ok">{notice}</p>}
 
         <Button type="submit" disabled={busy}>
           {mode === 'in' ? t('auth.signIn') : t('auth.signUp')}
@@ -67,7 +67,7 @@ export function SignIn() {
 
         <button
           type="button"
-          className="text-[13px] text-ink-muted underline-offset-2 hover:text-ink hover:underline"
+          className="text-small text-ink-muted underline-offset-2 hover:text-ink hover:underline"
           onClick={() => {
             setMode(mode === 'in' ? 'up' : 'in')
             setError(null)

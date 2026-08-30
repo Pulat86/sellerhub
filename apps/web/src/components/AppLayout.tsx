@@ -20,7 +20,7 @@ export function AppLayout() {
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <button
-            aria-label="Закрыть меню"
+            aria-label={t('nav.closeMenu')}
             className="absolute inset-0 bg-black/30"
             onClick={() => setOpen(false)}
           />
@@ -35,15 +35,15 @@ export function AppLayout() {
           <button
             className="rounded-md border border-line-strong px-2 py-1 text-ink-muted lg:hidden"
             onClick={() => setOpen(true)}
-            aria-label="Открыть меню"
+            aria-label={t('nav.openMenu')}
           >
             ☰
           </button>
-          <span className="font-display text-[13px] font-semibold text-ink">
+          <span className="font-display text-small font-semibold text-ink">
             {currentTenant?.tenant.name ?? t('app.name')}
           </span>
           {currentTenant && (
-            <span className="rounded-sm bg-surface-sunken px-2 py-0.5 font-display text-[11px] font-bold text-ink-muted">
+            <span className="rounded-sm bg-surface-sunken px-2 py-0.5 font-display text-micro font-bold text-ink-muted">
               {currentTenant.role}
             </span>
           )}
