@@ -4,18 +4,14 @@
    отступов, радиусов и теней.
 
    Правило: в компонентах нет литеральных цветов, отступов,
-   радиусов и теней. Нет нужного токена — сначала добавь
-   его сюда, потом используй.
-
-   Тёмная тема переопределяет ТОЛЬКО токены. Ни один цвет не
-   объявляется внутри media-запроса впервые — иначе в одной
-   из тем он просто не применится.
+   радиусов и теней. Нет нужного токена — сначала добавь его
+   сюда, в обе темы, потом используй.
    ============================================================ */
 
 :root {
-  /* Акцент: глубокий сине-зелёный.
-     Выбран так, чтобы не сталкиваться с фирменными цветами
-     площадок — они фиолетовые, розовые и синие. */
+  /* Акцент: глубокий сине-зелёный. Выбран так, чтобы не сталкиваться
+     с фирменными цветами площадок — они фиолетовые, розовые и синие,
+     и постоянно висят чипами рядом с кнопками. */
   --accent:          #0E7C66;
   --accent-hover:    #0A6152;
   --accent-active:   #084C41;
@@ -23,7 +19,7 @@
   --accent-border:   #B9DBD1;
   --on-accent:       #FFFFFF;
 
-  /* Нейтральные с лёгким зелёным уклоном */
+  /* Нейтральные с лёгким зелёным уклоном — не бетонный серый */
   --ground:          #F5F8F7;
   --surface:         #FFFFFF;
   --surface-sunken:  #EFF3F2;
@@ -63,11 +59,18 @@
   --font-body:    "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --font-mono:    "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
 
-  --sidebar-bg:     #12201D;
-  --sidebar-text:   #C4D3CF;
-  --sidebar-hover:  #1B2E2A;
-  --sidebar-active: #24413A;
-  --sidebar-mark:   #3FBF9E;
+  /* Боковое меню светлое: белая панель на светло-сером поле.
+     Отделяется границей и отступами, а не тёмной заливкой.
+     Плата за это — активный пункт приходится усиливать тремя
+     признаками сразу, иначе он теряется в общей светлоте. */
+  --sidebar-bg:          #FFFFFF;
+  --sidebar-border:      #DFE6E4;
+  --sidebar-brand:       #16211E;
+  --sidebar-text:        #5E6D69;
+  --sidebar-hover:       #F2F6F5;
+  --sidebar-active:      #E4F1ED;
+  --sidebar-text-active: #0A6152;
+  --sidebar-mark:        #0E7C66;
 }
 
 /* Тёмная тема по настройке системы.
@@ -104,14 +107,18 @@
     --shadow-lg: 0 8px 24px rgba(0, 0, 0, .55), 0 2px 6px rgba(0, 0, 0, .40);
     --focus: 0 0 0 3px rgba(63, 191, 158, .32);
 
-    --sidebar-bg:     #0A1210;
-    --sidebar-text:   #A9BCB7;
-    --sidebar-hover:  #141F1C;
-    --sidebar-active: #1C2F2A;
+    --sidebar-bg:          #151F1D;
+    --sidebar-border:      #23312E;
+    --sidebar-brand:       #E6EDEB;
+    --sidebar-text:        #9AACA7;
+    --sidebar-hover:       #1B2724;
+    --sidebar-active:      #12312A;
+    --sidebar-text-active: #6EDCBF;
+    --sidebar-mark:        #3FBF9E;
   }
 }
 
-/* Тот же набор для явного выбора тёмной темы в настройках приложения. */
+/* Тот же набор для явного выбора тёмной темы в настройках приложения */
 :root[data-theme="dark"] {
   --accent:        #3FBF9E;
   --accent-hover:  #55CFAF;
@@ -143,37 +150,12 @@
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, .55), 0 2px 6px rgba(0, 0, 0, .40);
   --focus: 0 0 0 3px rgba(63, 191, 158, .32);
 
-  --sidebar-bg:     #0A1210;
-  --sidebar-text:   #A9BCB7;
-  --sidebar-hover:  #141F1C;
-  --sidebar-active: #1C2F2A;
-}
-
-/* База */
-
-*, *::before, *::after { box-sizing: border-box; }
-
-html, body { height: 100%; }
-
-body {
-  margin: 0;
-  background: var(--ground);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-}
-
-:focus-visible { outline: none; box-shadow: var(--focus); }
-
-/* Цифры в колонках всегда одной ширины */
-.num, td.num, .tabular { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
-  }
+  --sidebar-bg:          #151F1D;
+  --sidebar-border:      #23312E;
+  --sidebar-brand:       #E6EDEB;
+  --sidebar-text:        #9AACA7;
+  --sidebar-hover:       #1B2724;
+  --sidebar-active:      #12312A;
+  --sidebar-text-active: #6EDCBF;
+  --sidebar-mark:        #3FBF9E;
 }
