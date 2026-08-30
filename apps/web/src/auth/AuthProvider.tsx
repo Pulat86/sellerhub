@@ -9,6 +9,8 @@ type AuthValue = {
   session: Session | null
   loading: boolean
   memberships: TenantMembership[]
+  membershipsError: string | null
+  membershipsLoading: boolean
   currentTenant: TenantMembership | null
   setCurrentTenantId: (id: string) => void
   reloadMemberships: () => Promise<void>
@@ -31,9 +33,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [memberships, setMemberships] = useState<TenantMembership[]>([])
+  const [membershipsError, setMembershipsError] = useState<string | null>(null)
+  const [membershipsLoading, setMembershipsLoading] = useState(false)
   const [tenantId, setTenantId] = useState<string | null>(readStoredTenant)
 
   async function loadMemberships() {
+    setMembershipsLoading(true)
+    setMembershipsError(null)
+
     // RLS сам отдаст только те компании, где пользователь состоит.
     // Фильтровать по user_id во фронте не нужно и не следует:
     // это создало бы ложное ощущение, что защита живёт в клиенте.
@@ -43,12 +50,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq('status', 'active')
 
     if (error) {
-      setMemberships([])
+      // НЕ обнуляем список: пустой список означает «компаний нет» и ведёт
+      // на экран создания. При сетевом сбое это заставило бы пользователя
+      // с существующей компанией завести дубль.
+      setMembershipsError(error.message)
+      setMembershipsLoading(false)
       return
     }
 
     const rows = (data ?? []) as unknown as Array<{ role: MemberRole; tenants: Tenant | null }>
     setMemberships(rows.filter((r) => r.tenants).map((r) => ({ role: r.role, tenant: r.tenants as Tenant })))
+    setMembershipsLoading(false)
   }
 
   useEffect(() => {
@@ -72,8 +84,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    if (session) void loadMemberships()
-    else setMemberships([])
+    if (session) {
+      void loadMemberships()
+    } else {
+      setMemberships([])
+      setMembershipsError(null)
+    }
   }, [session])
 
   function setCurrentTenantId(id: string) {
@@ -94,12 +110,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session,
     loading,
     memberships,
+    membershipsError,
+    membershipsLoading,
     currentTenant,
     setCurrentTenantId,
     reloadMemberships: loadMemberships,
     signOut: async () => {
       await supabase.auth.signOut()
       setMemberships([])
+      setMembershipsError(null)
     },
   }
 

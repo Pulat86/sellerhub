@@ -4,24 +4,48 @@ import { AppLayout } from './components/AppLayout'
 import { SignIn } from './routes/SignIn'
 import { CreateTenant } from './routes/CreateTenant'
 import { Placeholder } from './routes/Placeholder'
-import { LoadingState } from './components/ui/States'
+import { ErrorState, LoadingState } from './components/ui/States'
+
+function Centered({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="grid min-h-full place-items-center p-6">
+      <div className="w-full max-w-sm">{children}</div>
+    </div>
+  )
+}
 
 export function App() {
-  const { session, loading, memberships } = useAuth()
+  const { session, loading, memberships, membershipsError, membershipsLoading, reloadMemberships } = useAuth()
 
   if (loading) {
     return (
-      <div className="grid min-h-full place-items-center p-6">
-        <div className="w-full max-w-sm">
-          <LoadingState />
-        </div>
-      </div>
+      <Centered>
+        <LoadingState />
+      </Centered>
     )
   }
 
   if (!session) return <SignIn />
 
-  // Вошёл, но компании ещё нет — сначала создаём её.
+  if (membershipsLoading) {
+    return (
+      <Centered>
+        <LoadingState />
+      </Centered>
+    )
+  }
+
+  // Ошибка загрузки — ЭТО НЕ «компаний нет».
+  // Без этой ветки сетевой сбой вёл бы на экран создания компании
+  // и пользователь завёл бы дубль своей же компании.
+  if (membershipsError) {
+    return (
+      <Centered>
+        <ErrorState body={membershipsError} onRetry={() => void reloadMemberships()} />
+      </Centered>
+    )
+  }
+
   if (memberships.length === 0) return <CreateTenant />
 
   return (
