@@ -1,0 +1,179 @@
+/* ============================================================
+   SellerHub — токены дизайн-системы.
+   Единственный источник правды для цвета, типографики,
+   отступов, радиусов и теней.
+
+   Правило: в компонентах нет литеральных цветов, отступов,
+   радиусов и теней. Нет нужного токена — сначала добавь
+   его сюда, потом используй.
+
+   Тёмная тема переопределяет ТОЛЬКО токены. Ни один цвет не
+   объявляется внутри media-запроса впервые — иначе в одной
+   из тем он просто не применится.
+   ============================================================ */
+
+:root {
+  /* Акцент: глубокий сине-зелёный.
+     Выбран так, чтобы не сталкиваться с фирменными цветами
+     площадок — они фиолетовые, розовые и синие. */
+  --accent:          #0E7C66;
+  --accent-hover:    #0A6152;
+  --accent-active:   #084C41;
+  --accent-soft:     #E4F1ED;
+  --accent-border:   #B9DBD1;
+  --on-accent:       #FFFFFF;
+
+  /* Нейтральные с лёгким зелёным уклоном */
+  --ground:          #F5F8F7;
+  --surface:         #FFFFFF;
+  --surface-sunken:  #EFF3F2;
+  --surface-hover:   #F2F6F5;
+  --border:          #DFE6E4;
+  --border-strong:   #C6D2CF;
+
+  --text:            #16211E;
+  --text-muted:      #5E6D69;
+  --text-faint:      #8A9995;
+
+  /* Смысловые цвета — это не акцент, они говорят о состоянии */
+  --ok:              #15784A;   --ok-soft:     #E3F3EA;
+  --warn:            #A65E00;   --warn-soft:   #FBEEDC;
+  --danger:          #B93A2C;   --danger-soft: #FBE9E6;
+  --info:            #22608F;   --info-soft:   #E5EFF7;
+
+  /* Площадки: фирменные цвета только для опознавания в чипах */
+  --mp-uzum:         #7A2CBF;
+  --mp-wb:           #B31C8E;
+  --mp-ozon:         #0A5BDB;
+  --mp-ym:           #D8341A;
+
+  /* Отступы: шаг 4. Плотный интерфейс — оператор в нём весь день */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px; --sp-12: 48px;
+
+  --r-sm: 5px;  --r-md: 8px;  --r-lg: 12px; --r-full: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(16, 34, 30, .06);
+  --shadow-md: 0 2px 6px rgba(16, 34, 30, .07), 0 1px 2px rgba(16, 34, 30, .05);
+  --shadow-lg: 0 8px 24px rgba(16, 34, 30, .10), 0 2px 6px rgba(16, 34, 30, .06);
+
+  --focus: 0 0 0 3px rgba(14, 124, 102, .28);
+
+  --font-display: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --font-body:    "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono:    "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
+
+  --sidebar-bg:     #12201D;
+  --sidebar-text:   #C4D3CF;
+  --sidebar-hover:  #1B2E2A;
+  --sidebar-active: #24413A;
+  --sidebar-mark:   #3FBF9E;
+}
+
+/* Тёмная тема по настройке системы.
+   :not([data-theme="light"]) — чтобы явный выбор светлой темы победил. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --accent:        #3FBF9E;
+    --accent-hover:  #55CFAF;
+    --accent-active: #6EDCBF;
+    --accent-soft:   #12312A;
+    --accent-border: #1E4A40;
+    --on-accent:     #06211B;
+
+    --ground:         #0E1614;
+    --surface:        #151F1D;
+    --surface-sunken: #101A18;
+    --surface-hover:  #1B2724;
+    --border:         #23312E;
+    --border-strong:  #33443F;
+
+    --text:        #E6EDEB;
+    --text-muted:  #9AACA7;
+    --text-faint:  #6D7F7A;
+
+    --ok:     #4FC384;   --ok-soft:     #122E22;
+    --warn:   #D99646;   --warn-soft:   #2E2315;
+    --danger: #E8796A;   --danger-soft: #331916;
+    --info:   #6BA6DC;   --info-soft:   #14232F;
+
+    --mp-uzum: #A96BE0; --mp-wb: #DE63BC; --mp-ozon: #5B93F5; --mp-ym: #F0705A;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .40);
+    --shadow-md: 0 2px 6px rgba(0, 0, 0, .45), 0 1px 2px rgba(0, 0, 0, .35);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, .55), 0 2px 6px rgba(0, 0, 0, .40);
+    --focus: 0 0 0 3px rgba(63, 191, 158, .32);
+
+    --sidebar-bg:     #0A1210;
+    --sidebar-text:   #A9BCB7;
+    --sidebar-hover:  #141F1C;
+    --sidebar-active: #1C2F2A;
+  }
+}
+
+/* Тот же набор для явного выбора тёмной темы в настройках приложения. */
+:root[data-theme="dark"] {
+  --accent:        #3FBF9E;
+  --accent-hover:  #55CFAF;
+  --accent-active: #6EDCBF;
+  --accent-soft:   #12312A;
+  --accent-border: #1E4A40;
+  --on-accent:     #06211B;
+
+  --ground:         #0E1614;
+  --surface:        #151F1D;
+  --surface-sunken: #101A18;
+  --surface-hover:  #1B2724;
+  --border:         #23312E;
+  --border-strong:  #33443F;
+
+  --text:        #E6EDEB;
+  --text-muted:  #9AACA7;
+  --text-faint:  #6D7F7A;
+
+  --ok:     #4FC384;   --ok-soft:     #122E22;
+  --warn:   #D99646;   --warn-soft:   #2E2315;
+  --danger: #E8796A;   --danger-soft: #331916;
+  --info:   #6BA6DC;   --info-soft:   #14232F;
+
+  --mp-uzum: #A96BE0; --mp-wb: #DE63BC; --mp-ozon: #5B93F5; --mp-ym: #F0705A;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .40);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, .45), 0 1px 2px rgba(0, 0, 0, .35);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, .55), 0 2px 6px rgba(0, 0, 0, .40);
+  --focus: 0 0 0 3px rgba(63, 191, 158, .32);
+
+  --sidebar-bg:     #0A1210;
+  --sidebar-text:   #A9BCB7;
+  --sidebar-hover:  #141F1C;
+  --sidebar-active: #1C2F2A;
+}
+
+/* База */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible { outline: none; box-shadow: var(--focus); }
+
+/* Цифры в колонках всегда одной ширины */
+.num, td.num, .tabular { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
