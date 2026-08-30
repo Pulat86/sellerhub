@@ -1,0 +1,90 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+/* Пробрасываем токены в утилиты Tailwind.
+   @theme inline — значения не копируются, а ссылаются на var(--…),
+   поэтому тёмная тема работает сама: меняется токен — меняется утилита. */
+@theme inline {
+  --color-accent:        var(--accent);
+  --color-accent-hover:  var(--accent-hover);
+  --color-accent-active: var(--accent-active);
+  --color-accent-soft:   var(--accent-soft);
+  --color-accent-line:   var(--accent-border);
+  --color-on-accent:     var(--on-accent);
+
+  --color-ground:         var(--ground);
+  --color-surface:        var(--surface);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-hover:  var(--surface-hover);
+  --color-line:           var(--border);
+  --color-line-strong:    var(--border-strong);
+
+  --color-ink:       var(--text);
+  --color-ink-muted: var(--text-muted);
+  --color-ink-faint: var(--text-faint);
+
+  --color-ok:          var(--ok);
+  --color-ok-soft:     var(--ok-soft);
+  --color-warn:        var(--warn);
+  --color-warn-soft:   var(--warn-soft);
+  --color-danger:      var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info:        var(--info);
+  --color-info-soft:   var(--info-soft);
+
+  --color-mp-uzum: var(--mp-uzum);
+  --color-mp-wb:   var(--mp-wb);
+  --color-mp-ozon: var(--mp-ozon);
+  --color-mp-ym:   var(--mp-ym);
+
+  --color-sidebar:        var(--sidebar-bg);
+  --color-sidebar-line:   var(--sidebar-border);
+  --color-sidebar-brand:  var(--sidebar-brand);
+  --color-sidebar-text:   var(--sidebar-text);
+  --color-sidebar-hover:  var(--sidebar-hover);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-on:     var(--sidebar-text-active);
+  --color-sidebar-mark:   var(--sidebar-mark);
+
+  --radius-sm:   var(--r-sm);
+  --radius-md:   var(--r-md);
+  --radius-lg:   var(--r-lg);
+  --radius-full: var(--r-full);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  --font-display: var(--font-display);
+  --font-sans:    var(--font-body);
+  --font-mono:    var(--font-mono);
+}
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body, #root { height: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible { outline: none; box-shadow: var(--focus); }
+
+  /* Цифры в колонках всегда одной ширины */
+  .tabular { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+    }
+  }
+}
