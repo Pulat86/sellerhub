@@ -40,9 +40,36 @@ jobs:
             exit 1
           fi
           if ! echo "$OUT" | grep -q 'OK'; then
-            echo '::error::Тест не вернул ни одной строки — проверь сам тест, молчаливый пропуск хуже падения'
+            echo '::error::Тест не вернул ни одной строки — молчаливый пропуск хуже падения'
             exit 1
           fi
 
       - name: Линтер базы
         run: supabase db lint --level error --fail-on error
+
+  web:
+    name: Сборка фронтенда
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Установка зависимостей
+        run: npm install
+
+      - name: Линтер
+        run: npm run lint
+
+      # tsc -b внутри build — типы проверяются здесь же.
+      # Ключи публичные, поэтому берём их из .env.example — секреты не нужны.
+      - name: Сборка
+        run: |
+          cp .env.example .env
+          npm run build

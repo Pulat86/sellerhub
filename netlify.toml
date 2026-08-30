@@ -1,0 +1,26 @@
+# Сборка фронтенда из монорепо.
+# Переменные VITE_SUPABASE_URL и VITE_SUPABASE_PUBLISHABLE_KEY задаются
+# в настройках проекта Netlify. service_role туда не кладётся никогда.
+
+[build]
+  base    = "apps/web"
+  command = "npm run build"
+  publish = "apps/web/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# SPA: любой путь отдаёт index.html, маршрутизация живёт в браузере.
+# Без этого обновление страницы на /catalog даст 404.
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options        = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy        = "strict-origin-when-cross-origin"
+    Permissions-Policy     = "camera=(self), microphone=(), geolocation=()"
