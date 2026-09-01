@@ -74,6 +74,48 @@ jobs:
           cp .env.example .env
           npm run build
 
+  types:
+    name: Типы из схемы
+    runs-on: ubuntu-latest
+    # Локальной разработки нет и Supabase CLI на машинах команды не стоит.
+    # Единственное место, где типы могут быть перегенерированы, — этот джоб.
+    # Без него после каждой миграции клиент Supabase не видит новые таблицы.
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [migrations]
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # Генерируем из локального стека, а не из --linked: локальный собран
+      # ровно из миграций репозитория. Прод может отставать, и тогда типы
+      # описывали бы схему, которой в коде уже нет.
+      - name: Поднять локальный Supabase
+        run: supabase start
+
+      - name: Сгенерировать типы
+        run: supabase gen types --lang typescript --local > apps/web/src/types/database.gen.ts
+
+      - name: Закоммитить, если схема изменилась
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- apps/web/src/types/database.gen.ts; then
+            echo 'Типы уже соответствуют схеме — коммит не нужен.'
+            exit 0
+          fi
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add apps/web/src/types/database.gen.ts
+          # [skip ci] обязателен: без него коммит бота запустит CI заново
+          # и джоб будет вызывать сам себя по кругу.
+          git commit -m 'chore(types): регенерация из схемы [skip ci]'
+          git push
+
   deploy-functions:
     name: Деплой Edge Functions
     runs-on: ubuntu-latest
