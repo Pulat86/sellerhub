@@ -10,10 +10,7 @@
 create extension if not exists pg_cron with schema extensions;
 create extension if not exists pg_net  with schema extensions;
 
--- 2. Переменная: URL Edge Function (читается диспетчером каждый раз).
---    Значение задаётся через Supabase Dashboard → Database → Vault
---    или через SQL: select vault.create_secret('DISPATCH_URL', 'https://...');
---    Функция ниже читает её при каждом вызове — не при старте.
+-- 2. Таблица конфига
 create table if not exists app.config (
   key   text primary key,
   value text not null
@@ -29,9 +26,8 @@ comment on table app.config is
 --    Берёт pending-задачи → шлёт HTTP-запрос в Edge Function → Edge Function
 --    сама забирает задачи через app.claim_jobs и обрабатывает.
 --
---    Почему не вызываем claim_jobs здесь?
---    Диспетчер — только сигнал. Реальный захват делает Edge Function,
---    потому что только она имеет доступ к секретам маркетплейсов.
+--    pg_net регистрирует расширение в схеме extensions, но функции
+--    публикует в схеме net. Правильный вызов: net.http_post(), не extensions.http_post().
 create or replace function app.dispatch_pending_jobs()
 returns void language plpgsql security definer set search_path = '' as $$
 declare
@@ -55,12 +51,11 @@ begin
     return;
   end if;
 
-  -- Асинхронный HTTP-вызов. pg_net не ждёт ответа — Fire and forget.
-  -- Edge Function авторизуется через заголовок Authorization (service_role jwt),
-  -- который она сама читает из переменных окружения Supabase.
-  perform extensions.http_post(
+  -- Асинхронный HTTP-вызов через pg_net.
+  -- net.http_post возвращает bigint (request id) — игнорируем.
+  perform net.http_post(
     url     := v_url,
-    body    := jsonb_build_object('triggered_by', 'pg_cron', 'pending', v_pending)::text,
+    body    := jsonb_build_object('triggered_by', 'pg_cron', 'pending', v_pending),
     headers := jsonb_build_object('Content-Type', 'application/json')
   );
 
@@ -70,10 +65,7 @@ exception when others then
 end;
 $$;
 
--- 4. Функция reaper-а (уже была в 0003, здесь планируем её запуск).
---    Освобождает зависшие задачи, у которых воркер упал, не дозвонив finish_job.
-
--- 5. pg_cron расписание.
+-- 4. pg_cron расписание.
 --    Удаляем старые версии заданий перед установкой (идемпотентность).
 select cron.unschedule(jobname)
   from cron.job
