@@ -57,10 +57,11 @@ export function App() {
       <Route element={<AppLayout />}>
         <Route index element={<Placeholder titleKey="nav.dashboard" />} />
         <Route path="catalog" element={<Catalog />} />
+        {/* Статичные сегменты выигрывают у параметрических независимо от порядка:
+            React Router ранжирует маршруты по конкретности, а не по объявлению.
+            Порядок ниже — только для читаемости. */}
         <Route path="catalog/new" element={<ProductNew />} />
         <Route path="catalog/references" element={<CatalogReferences />} />
-        {/* Конкретные пути объявлены выше параметрического:
-            иначе /catalog/new ушёл бы в карточку с id = "new". */}
         <Route path="catalog/:id" element={<ProductDetail />} />
         <Route path="orders" element={<Placeholder titleKey="nav.orders" />} />
         <Route path="warehouse" element={<Placeholder titleKey="nav.warehouse" />} />

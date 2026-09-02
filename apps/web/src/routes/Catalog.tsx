@@ -42,7 +42,9 @@ function Row({ p, locale }: { p: ProductRow; locale: string }) {
   return (
     <tr className="hover:bg-surface-hover">
       <Cell>
-        <span className="font-medium">{p.name}</span>
+        <Link to={`/catalog/${p.id}`} className="font-medium text-accent hover:underline">
+          {p.name}
+        </Link>
       </Cell>
       <Cell muted>
         <code className="text-small">{p.sku ?? '\u2014'}</code>
