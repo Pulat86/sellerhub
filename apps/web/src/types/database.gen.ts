@@ -618,6 +618,23 @@ export type Database = {
         Args: { p_error?: string; p_id: number; p_ok: boolean }
         Returns: undefined
       }
+      search_products: {
+        Args: {
+          p_brand?: string
+          p_category?: string
+          p_limit?: number
+          p_offset?: number
+          p_search?: string
+          p_tenant: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["product_search_row"][]
+        SetofOptions: {
+          from: "*"
+          to: "product_search_row"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
     }
     Enums: {
       currency: "UZS" | "USD" | "RUB" | "KZT" | "EUR"
@@ -628,7 +645,21 @@ export type Database = {
       member_status: "active" | "invited" | "disabled"
     }
     CompositeTypes: {
-      [_ in never]: never
+      product_search_row: {
+        id: string | null
+        name: string | null
+        category_id: string | null
+        brand_id: string | null
+        category_name: string | null
+        brand_name: string | null
+        sku: string | null
+        barcode: string | null
+        cost_price: number | null
+        cost_currency: Database["public"]["Enums"]["currency"] | null
+        variant_count: number | null
+        created_at: string | null
+        total_count: number | null
+      }
     }
   }
 }
