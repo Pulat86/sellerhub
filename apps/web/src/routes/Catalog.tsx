@@ -14,7 +14,7 @@ import {
 } from '../lib/catalog'
 
 /** Роли, которым разрешена запись в каталог. Зеркало app.can_write_catalog в базе.
- *  Это только прячет кнопку — настоящая проверка живёт в RLS. */
+ *  Это только прячет кнопки — настоящая проверка живёт в RLS. */
 const WRITE_ROLES = ['owner', 'admin', 'manager']
 
 function Cell({ children, muted }: { children: React.ReactNode; muted?: boolean }) {
@@ -45,11 +45,11 @@ function Row({ p, locale }: { p: ProductRow; locale: string }) {
         <span className="font-medium">{p.name}</span>
       </Cell>
       <Cell muted>
-        <code className="text-small">{p.sku ?? '—'}</code>
+        <code className="text-small">{p.sku ?? '\u2014'}</code>
         {extra > 0 ? <span className="ml-1.5 text-mini text-ink-faint">+{extra}</span> : null}
       </Cell>
-      <Cell muted>{p.category_name ?? '—'}</Cell>
-      <Cell muted>{p.brand_name ?? '—'}</Cell>
+      <Cell muted>{p.category_name ?? '\u2014'}</Cell>
+      <Cell muted>{p.brand_name ?? '\u2014'}</Cell>
       <Cell muted>{formatMoney(p.cost_price, p.cost_currency, locale)}</Cell>
     </tr>
   )
@@ -89,9 +89,14 @@ export function Catalog() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-2xl font-bold tracking-tight">{t('nav.catalog')}</h1>
         {canWrite ? (
-          <Link to="/catalog/new">
-            <Button>{t('catalog.add')}</Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link to="/catalog/references">
+              <Button variant="secondary">{t('catalog.references')}</Button>
+            </Link>
+            <Link to="/catalog/new">
+              <Button>{t('catalog.add')}</Button>
+            </Link>
+          </div>
         ) : null}
       </div>
 
