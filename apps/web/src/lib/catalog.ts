@@ -1,26 +1,34 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from './supabase'
-import type { Enums, Tables } from '../types/database'
+import type { Enums } from '../types/database'
 
 /**
  * Слой данных каталога.
  *
- * Все запросы явно фильтруются по tenant_id, хотя RLS и так не отдаст чужое.
- * Причина не в безопасности: пользователь может состоять в двух компаниях,
- * и без фильтра в каталоге перемешались бы товары обеих.
+ * Список товаров идёт через функцию search_products, а не прямым запросом:
+ * поиск должен находить и по названию товара, и по артикулу с штрихкодом варианта,
+ * а это условие через связь PostgREST одним запросом не выражает.
+ *
+ * Функция объявлена как security invoker, то есть RLS применяется к вызывающему.
+ * Справочники категорий и брендов читаются напрямую — там обычный список.
  */
 
 export const PAGE_SIZE = 25
 
-export type VariantBrief = Pick<
-  Tables<'product_variants'>,
-  'id' | 'sku' | 'barcode' | 'cost_price' | 'cost_currency'
->
-
-export type ProductRow = Tables<'products'> & {
-  brands: { name: string } | null
-  categories: { name: string } | null
-  product_variants: VariantBrief[]
+export type ProductRow = {
+  id: string
+  name: string
+  category_id: string | null
+  brand_id: string | null
+  category_name: string | null
+  brand_name: string | null
+  sku: string | null
+  barcode: string | null
+  cost_price: number | null
+  cost_currency: Enums<'currency'>
+  variant_count: number
+  created_at: string
+  total_count: number
 }
 
 export type ProductFilters = {
@@ -30,45 +38,26 @@ export type ProductFilters = {
   page: number
 }
 
-const PRODUCT_SELECT =
-  'id, tenant_id, name, description, has_variants, archived_at, created_at, updated_at, ' +
-  'category_id, brand_id, ' +
-  'brands(name), categories(name), ' +
-  'product_variants(id, sku, barcode, cost_price, cost_currency)'
-
 export function useProducts(tenantId: string | undefined, f: ProductFilters) {
   return useQuery({
     queryKey: ['products', tenantId, f.search, f.categoryId, f.brandId, f.page],
     enabled: Boolean(tenantId),
     queryFn: async () => {
-      const from = f.page * PAGE_SIZE
-      const to = from + PAGE_SIZE - 1
+      const { data, error } = await supabase.rpc('search_products', {
+        p_tenant: tenantId!,
+        p_search: f.search.trim() || undefined,
+        p_category: f.categoryId || undefined,
+        p_brand: f.brandId || undefined,
+        p_limit: PAGE_SIZE,
+        p_offset: f.page * PAGE_SIZE,
+      })
 
-      let q = supabase
-        .from('products')
-        .select(PRODUCT_SELECT, { count: 'exact' })
-        .eq('tenant_id', tenantId!)
-        .is('archived_at', null)
-        .order('created_at', { ascending: false })
-        .range(from, to)
-
-      // Поиск по названию опирается на триграммный индекс из миграции 0011.
-      // Поиск по SKU и штрихкоду требует условия «name ИЛИ sku» через связь,
-      // а это PostgREST одним запросом не выражает. Будет отдельной функцией в базе —
-      // та же функция потом послужит сканеру штрихкодов на складе.
-      const term = f.search.trim()
-      if (term) q = q.ilike('name', `%${term}%`)
-
-      if (f.categoryId) q = q.eq('category_id', f.categoryId)
-      if (f.brandId) q = q.eq('brand_id', f.brandId)
-
-      const { data, error, count } = await q
       if (error) throw new Error(error.message)
 
-      return {
-        rows: (data ?? []) as unknown as ProductRow[],
-        total: count ?? 0,
-      }
+      const rows = (data ?? []) as unknown as ProductRow[]
+      // Общее число совпавших товаров функция кладёт в каждую строку
+      // оконной функцией — второй запрос на подсчёт не нужен.
+      return { rows, total: rows[0]?.total_count ?? 0 }
     },
   })
 }

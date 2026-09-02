@@ -37,8 +37,7 @@ function Head({ children }: { children: React.ReactNode }) {
 }
 
 function Row({ p, locale }: { p: ProductRow; locale: string }) {
-  const first = p.product_variants[0]
-  const extra = p.product_variants.length - 1
+  const extra = p.variant_count - 1
 
   return (
     <tr className="hover:bg-surface-hover">
@@ -46,14 +45,12 @@ function Row({ p, locale }: { p: ProductRow; locale: string }) {
         <span className="font-medium">{p.name}</span>
       </Cell>
       <Cell muted>
-        <code className="text-small">{first?.sku ?? '—'}</code>
+        <code className="text-small">{p.sku ?? '—'}</code>
         {extra > 0 ? <span className="ml-1.5 text-mini text-ink-faint">+{extra}</span> : null}
       </Cell>
-      <Cell muted>{p.categories?.name ?? '—'}</Cell>
-      <Cell muted>{p.brands?.name ?? '—'}</Cell>
-      <Cell muted>
-        {first ? formatMoney(first.cost_price, first.cost_currency, locale) : '—'}
-      </Cell>
+      <Cell muted>{p.category_name ?? '—'}</Cell>
+      <Cell muted>{p.brand_name ?? '—'}</Cell>
+      <Cell muted>{formatMoney(p.cost_price, p.cost_currency, locale)}</Cell>
     </tr>
   )
 }
