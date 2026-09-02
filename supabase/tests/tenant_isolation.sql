@@ -18,7 +18,7 @@ insert into public.tenants (id, name, slug) values
  ('22222222-0000-0000-0000-00000000000b','Tenant B','tenant-b');
 
 -- Пользователь A — owner в тенанте A. Пользователь C — viewer в том же тенанте:
--- на нём проверяем, что права роли работают, а не только изоляция между компаниями.
+-- на нём проверяем права роли, а не только изоляцию между компаниями.
 insert into public.memberships (tenant_id, user_id, role) values
  ('11111111-0000-0000-0000-00000000000a','aaaaaaaa-0000-0000-0000-000000000001','owner'),
  ('22222222-0000-0000-0000-00000000000b','bbbbbbbb-0000-0000-0000-000000000002','owner'),
@@ -32,7 +32,7 @@ insert into public.sync_jobs (tenant_id, marketplace, job_type) values
  ('11111111-0000-0000-0000-00000000000a','uzum','products.pull'),
  ('22222222-0000-0000-0000-00000000000b','uzum','products.pull');
 
--- КАТАЛОГ: по одной строке каждой сущности в каждом тенанте.
+-- КАТАЛОГ
 insert into public.categories (id, tenant_id, name, slug) values
  ('c0000000-0000-0000-0000-0000000000aa','11111111-0000-0000-0000-00000000000a','Обувь A','shoes-a'),
  ('c0000000-0000-0000-0000-0000000000bb','22222222-0000-0000-0000-00000000000b','Обувь B','shoes-b');
@@ -57,8 +57,21 @@ insert into public.marketplace_listings (tenant_id, variant_id, marketplace, ext
  ('11111111-0000-0000-0000-00000000000a','50000000-0000-0000-0000-0000000000aa','uzum','EXT-1'),
  ('22222222-0000-0000-0000-00000000000b','50000000-0000-0000-0000-0000000000bb','uzum','EXT-1');
 
--- Один и тот же SKU у двух тенантов вставился без конфликта — так и задумано.
--- Уникальность SKU действует внутри тенанта, а не глобально.
+-- СКЛАД
+insert into public.warehouses (id, tenant_id, name, code, is_default) values
+ ('70000000-0000-0000-0000-0000000000aa','11111111-0000-0000-0000-00000000000a','Склад A','MAIN',true),
+ ('70000000-0000-0000-0000-0000000000bb','22222222-0000-0000-0000-00000000000b','Склад B','MAIN',true);
+
+insert into public.stock_movements (tenant_id, warehouse_id, variant_id, qty, reason) values
+ ('11111111-0000-0000-0000-00000000000a','70000000-0000-0000-0000-0000000000aa','50000000-0000-0000-0000-0000000000aa', 10,'receipt'),
+ ('11111111-0000-0000-0000-00000000000a','70000000-0000-0000-0000-0000000000aa','50000000-0000-0000-0000-0000000000aa', -3,'sale'),
+ ('22222222-0000-0000-0000-00000000000b','70000000-0000-0000-0000-0000000000bb','50000000-0000-0000-0000-0000000000bb', 99,'receipt');
+
+-- Код склада MAIN существует у обеих компаний — так и задумано.
+insert into t ("проверка","получили","ожидали")
+ select 'одинаковый код склада у двух тенантов', count(*)::text, '2'
+ from public.warehouses where code = 'MAIN';
+
 insert into t ("проверка","получили","ожидали")
  select 'одинаковый SKU у двух тенантов', count(*)::text, '2'
  from public.product_variants where sku = 'SKU-SAME';
@@ -88,6 +101,23 @@ insert into t ("проверка","получили","ожидали") values
  ('видно изображений', (select count(*)::text from public.product_images),       '1'),
  ('видно связок',      (select count(*)::text from public.marketplace_listings), '1');
 
+-- Склад: видно только своё
+insert into t ("проверка","получили","ожидали") values
+ ('видно складов',      (select count(*)::text from public.warehouses),      '1'),
+ ('видно движений',    (select count(*)::text from public.stock_movements), '2'),
+ ('виден чужой склад', (select count(*)::text from public.warehouses where id = '70000000-0000-0000-0000-0000000000bb'), '0');
+
+-- Остаток считается как сумма движений: 10 пришло, 3 ушло.
+insert into t ("проверка","получили","ожидали")
+ select 'остаток своего варианта', coalesce(sum(qty),0)::text, '7'
+ from public.stock_balances;
+
+-- Представление обязано уважать RLS. Без security_invoker оно бы показало
+-- и чужие остатки — это частая и незаметная утечка.
+insert into t ("проверка","получили","ожидали")
+ select 'видны чужие остатки', count(*)::text, '0'
+ from public.stock_balances where tenant_id = '22222222-0000-0000-0000-00000000000b';
+
 -- Каталог: чужие строки не видны поимённо
 insert into t ("проверка","получили","ожидали") values
  ('виден чужой товар',   (select count(*)::text from public.products             where id = '40000000-0000-0000-0000-0000000000bb'), '0'),
@@ -110,6 +140,9 @@ insert into t ("проверка","получили","ожидали") select '�
 with v as (update public.product_variants set cost_price = 0 where id = '50000000-0000-0000-0000-0000000000bb' returning 1)
 insert into t ("проверка","получили","ожидали") select 'изменил чужую себестоимость', count(*)::text, '0' from v;
 
+with w as (update public.warehouses set name = 'ВЗЛОМАНО' where id = '70000000-0000-0000-0000-0000000000bb' returning 1)
+insert into t ("проверка","получили","ожидали") select 'изменил чужой склад', count(*)::text, '0' from w;
+
 with dp as (delete from public.products where id = '40000000-0000-0000-0000-0000000000bb' returning 1)
 insert into t ("проверка","получили","ожидали") select 'удалил чужой товар', count(*)::text, '0' from dp;
 
@@ -125,6 +158,16 @@ with m as (insert into public.memberships (tenant_id, user_id, role)
            returning 1)
 insert into t ("проверка","получили","ожидали") select 'вписал себя в чужой тенант', count(*)::text, '0' from m;
 
+-- Журнал движений только пополняется: править и удалять нельзя
+-- даже в СВОЁМ тенанте. Иначе учёт можно переписать задним числом.
+with sm as (update public.stock_movements set qty = 999
+            where tenant_id = '11111111-0000-0000-0000-00000000000a' returning 1)
+insert into t ("проверка","получили","ожидали") select 'правил СВОЁ движение', count(*)::text, '0' from sm;
+
+with sd as (delete from public.stock_movements
+            where tenant_id = '11111111-0000-0000-0000-00000000000a' returning 1)
+insert into t ("проверка","получили","ожидали") select 'удалил СВОЁ движение', count(*)::text, '0' from sd;
+
 -- Вставка товара в чужой тенант должна быть отвергнута политикой INSERT.
 do $$
 declare v_inserted boolean := true;
@@ -139,8 +182,24 @@ begin
 end;
 $$;
 
+-- Движение на чужой склад — та же проверка для складского модуля.
+do $$
+declare v_inserted boolean := true;
+begin
+  begin
+    insert into public.stock_movements (tenant_id, warehouse_id, variant_id, qty, reason)
+    values ('22222222-0000-0000-0000-00000000000b','70000000-0000-0000-0000-0000000000bb',
+            '50000000-0000-0000-0000-0000000000bb', 5, 'receipt');
+  exception when others then
+    v_inserted := false;
+  end;
+  insert into t ("проверка","получили","ожидали")
+    values ('движение на чужой склад', v_inserted::text, 'false');
+end;
+$$;
+
 -- Межтенантная связка: вариант тенанта A под товар тенанта B.
--- Ловится составным внешним ключом (product_id, tenant_id), а не RLS:
+-- Ловится составным внешним ключом, а не RLS:
 -- по отдельности обе строки выглядят законными.
 do $$
 declare v_inserted boolean := true;
@@ -156,13 +215,28 @@ begin
 end;
 $$;
 
+-- У товара должен остаться хотя бы один вариант (триггер из 0014).
+do $$
+declare v_deleted boolean := true;
+begin
+  begin
+    delete from public.product_variants where id = '50000000-0000-0000-0000-0000000000aa';
+  exception when others then
+    v_deleted := false;
+  end;
+  insert into t ("проверка","получили","ожидали")
+    values ('удалил единственный вариант', v_deleted::text, 'false');
+end;
+$$;
+
 -- ============================================================
--- ПОЛЬЗОВАТЕЛЬ C (viewer в тенанте A) — права роли, не изоляция
+-- ПОЛЬЗОВАТЕЛЬ C (viewer в тенанте A) — права роли
 -- ============================================================
 set local request.jwt.claims = '{"sub":"cccccccc-0000-0000-0000-000000000003","role":"authenticated"}';
 
 insert into t ("проверка","получили","ожидали") values
  ('viewer видит товары своей компании', (select count(*)::text from public.products), '1'),
+ ('viewer видит остатки',               (select count(*)::text from public.stock_balances), '1'),
  ('viewer имеет право записи',          app.can_write_catalog('11111111-0000-0000-0000-00000000000a')::text, 'false');
 
 with vw as (update public.products set name = 'ПРАВЛЕНО VIEWER-ОМ'
@@ -171,6 +245,22 @@ insert into t ("проверка","получили","ожидали") select 'v
 
 with vd as (delete from public.products where id = '40000000-0000-0000-0000-0000000000aa' returning 1)
 insert into t ("проверка","получили","ожидали") select 'viewer удалил товар', count(*)::text, '0' from vd;
+
+-- viewer не должен мочь принять товар на склад.
+do $$
+declare v_inserted boolean := true;
+begin
+  begin
+    insert into public.stock_movements (tenant_id, warehouse_id, variant_id, qty, reason)
+    values ('11111111-0000-0000-0000-00000000000a','70000000-0000-0000-0000-0000000000aa',
+            '50000000-0000-0000-0000-0000000000aa', 5, 'receipt');
+  exception when others then
+    v_inserted := false;
+  end;
+  insert into t ("проверка","получили","ожидали")
+    values ('viewer принял товар на склад', v_inserted::text, 'false');
+end;
+$$;
 
 -- ============================================================
 select "проверка", "получили", "ожидали",
