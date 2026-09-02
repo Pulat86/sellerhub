@@ -6,6 +6,7 @@ import { CreateTenant } from './routes/CreateTenant'
 import { Placeholder } from './routes/Placeholder'
 import { Catalog } from './routes/Catalog'
 import { ProductNew } from './routes/ProductNew'
+import { ProductDetail } from './routes/ProductDetail'
 import { CatalogReferences } from './routes/CatalogReferences'
 import { ErrorState, LoadingState } from './components/ui/States'
 
@@ -58,6 +59,9 @@ export function App() {
         <Route path="catalog" element={<Catalog />} />
         <Route path="catalog/new" element={<ProductNew />} />
         <Route path="catalog/references" element={<CatalogReferences />} />
+        {/* Конкретные пути объявлены выше параметрического:
+            иначе /catalog/new ушёл бы в карточку с id = "new". */}
+        <Route path="catalog/:id" element={<ProductDetail />} />
         <Route path="orders" element={<Placeholder titleKey="nav.orders" />} />
         <Route path="warehouse" element={<Placeholder titleKey="nav.warehouse" />} />
         <Route path="analytics" element={<Placeholder titleKey="nav.analytics" />} />
