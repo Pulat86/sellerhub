@@ -4,6 +4,8 @@ import { AppLayout } from './components/AppLayout'
 import { SignIn } from './routes/SignIn'
 import { CreateTenant } from './routes/CreateTenant'
 import { Placeholder } from './routes/Placeholder'
+import { Catalog } from './routes/Catalog'
+import { ProductNew } from './routes/ProductNew'
 import { ErrorState, LoadingState } from './components/ui/States'
 
 function Centered({ children }: { children: React.ReactNode }) {
@@ -52,7 +54,8 @@ export function App() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={<Placeholder titleKey="nav.dashboard" />} />
-        <Route path="catalog" element={<Placeholder titleKey="nav.catalog" />} />
+        <Route path="catalog" element={<Catalog />} />
+        <Route path="catalog/new" element={<ProductNew />} />
         <Route path="orders" element={<Placeholder titleKey="nav.orders" />} />
         <Route path="warehouse" element={<Placeholder titleKey="nav.warehouse" />} />
         <Route path="analytics" element={<Placeholder titleKey="nav.analytics" />} />
