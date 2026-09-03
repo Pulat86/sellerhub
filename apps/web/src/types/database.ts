@@ -4,11 +4,14 @@
  * Схема лежит в database.gen.ts — его перезаписывает CI после каждой миграции.
  * Этот файл переживает регенерацию, поэтому все псевдонимы и хелперы живут здесь.
  * Импортировать в приложении нужно отсюда, не из .gen.
+ *
+ * Пока генерация сломана, складская часть схемы берётся из database.wms.ts.
  */
 
-export type { Json, Database } from './database.gen'
+export type { Json } from './database.gen'
+export type { DatabaseWithWms as Database } from './database.wms'
 
-import type { Database } from './database.gen'
+import type { DatabaseWithWms as Database } from './database.wms'
 
 type DefaultSchema = Database['public']
 
