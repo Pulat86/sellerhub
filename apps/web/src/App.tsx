@@ -8,6 +8,9 @@ import { Catalog } from './routes/Catalog'
 import { ProductNew } from './routes/ProductNew'
 import { ProductDetail } from './routes/ProductDetail'
 import { CatalogReferences } from './routes/CatalogReferences'
+import { Warehouse } from './routes/Warehouse'
+import { WarehouseJournal } from './routes/WarehouseJournal'
+import { WarehouseSettings } from './routes/WarehouseSettings'
 import { ErrorState, LoadingState } from './components/ui/States'
 
 function Centered({ children }: { children: React.ReactNode }) {
@@ -56,15 +59,20 @@ export function App() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={<Placeholder titleKey="nav.dashboard" />} />
-        <Route path="catalog" element={<Catalog />} />
+
         {/* Статичные сегменты выигрывают у параметрических независимо от порядка:
             React Router ранжирует маршруты по конкретности, а не по объявлению.
             Порядок ниже — только для читаемости. */}
+        <Route path="catalog" element={<Catalog />} />
         <Route path="catalog/new" element={<ProductNew />} />
         <Route path="catalog/references" element={<CatalogReferences />} />
         <Route path="catalog/:id" element={<ProductDetail />} />
+
+        <Route path="warehouse" element={<Warehouse />} />
+        <Route path="warehouse/journal" element={<WarehouseJournal />} />
+        <Route path="warehouse/settings" element={<WarehouseSettings />} />
+
         <Route path="orders" element={<Placeholder titleKey="nav.orders" />} />
-        <Route path="warehouse" element={<Placeholder titleKey="nav.warehouse" />} />
         <Route path="analytics" element={<Placeholder titleKey="nav.analytics" />} />
         <Route path="settings" element={<Placeholder titleKey="nav.settings" />} />
       </Route>
