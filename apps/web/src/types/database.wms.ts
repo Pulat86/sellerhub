@@ -110,6 +110,19 @@ export type StockJournalRow = {
   total_count: number
 }
 
+export type DashboardSummary = {
+  products_total: number
+  products_no_stock: number
+  variants_total: number
+  warehouses_total: number
+  stock_units: number
+  stock_cost: number
+  negative_positions: number
+  movements_7d: number
+  received_7d: number
+  shipped_7d: number
+}
+
 export type WmsFunctions = {
   stock_report: {
     Args: {
@@ -145,6 +158,10 @@ export type WmsFunctions = {
   seed_demo_data: {
     Args: { p_tenant: string }
     Returns: string
+  }
+  dashboard_summary: {
+    Args: { p_tenant: string }
+    Returns: DashboardSummary
   }
 }
 
