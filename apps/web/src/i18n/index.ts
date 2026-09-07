@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next'
 import { ru } from './ru'
 import { uz } from './uz'
 import { en } from './en'
+import { dashRu, dashEn, dashUz } from './dash'
 
 export const LOCALES = ['ru', 'uz', 'en'] as const
 export type Locale = (typeof LOCALES)[number]
@@ -22,9 +23,10 @@ function initialLocale(): Locale {
 
 void i18n.use(initReactI18next).init({
   resources: {
-    ru: { translation: ru },
-    uz: { translation: uz },
-    en: { translation: en },
+    // dash подмешивается отдельно: см. пояснение в dash.ts
+    ru: { translation: { ...ru, dash: dashRu } },
+    uz: { translation: { ...uz, dash: dashUz } },
+    en: { translation: { ...en, dash: dashEn } },
   },
   lng: initialLocale(),
   fallbackLng: 'ru',

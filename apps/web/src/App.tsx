@@ -4,6 +4,7 @@ import { AppLayout } from './components/AppLayout'
 import { SignIn } from './routes/SignIn'
 import { CreateTenant } from './routes/CreateTenant'
 import { Placeholder } from './routes/Placeholder'
+import { Dashboard } from './routes/Dashboard'
 import { Catalog } from './routes/Catalog'
 import { ProductNew } from './routes/ProductNew'
 import { ProductDetail } from './routes/ProductDetail'
@@ -58,7 +59,7 @@ export function App() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route index element={<Placeholder titleKey="nav.dashboard" />} />
+        <Route index element={<Dashboard />} />
 
         {/* Статичные сегменты выигрывают у параметрических независимо от порядка:
             React Router ранжирует маршруты по конкретности, а не по объявлению.
